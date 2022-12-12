@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import './App.css'
+import btc from './assets/btc.webp'
 
 function App() {
     const [rate, setRate] = useState(0)
@@ -22,6 +23,7 @@ function App() {
     return (
         <div className="App">
             <h1>Bitcoin Price</h1>
+            <img src={btc} alt="bitcoin" className="btclogo" />
             <h3>{rate}</h3>
         </div>
     )
