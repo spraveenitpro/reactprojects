@@ -2,11 +2,14 @@ import React from 'react'
 import axios from 'axios'
 import { useState, useEffect } from 'react'
 import Transactions from './components/Transactions'
+import Buttons from './components/Buttons'
+
 import './App.css'
 function App() {
     const [price, setPrice] = useState(null)
     const [balance, setBalance] = useState(null)
     const [transactions, setTransactions] = useState([])
+
     const getPrice = () => {
         // Axios is a library that makes it easy to make http requests
         // After we make a request, we can use the .then() method to handle the response asynchronously
@@ -72,7 +75,7 @@ function App() {
             <header>
                 <h1>pleb wallet</h1>
             </header>
-            {/* <Buttons /> */}
+            <Buttons />
             <div className="row">
                 <div className="balance-card">
                     <h2>Balance</h2>
