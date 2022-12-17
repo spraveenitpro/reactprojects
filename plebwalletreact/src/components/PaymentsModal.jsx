@@ -24,8 +24,64 @@ const PaymentsModal = ({ modalState, setModalState }) => {
         paymentHash: '',
         checkingId: '',
     })
-    const handleSend = () => {}
-    const handleReceive = () => {}
+    const handleSend = (e) => {
+        // Keep the page from refreshing when the form is submitted
+        e.preventDefault()
+        const headers = {
+            'X-Api-Key': import.meta.env.VITE_TEST_VAR,
+        }
+        const data = {
+            bolt11: formData.invoiceToPay,
+            out: true,
+        }
+        axios
+            .post('https://legend.lnbits.com/api/v1/payments', data, {
+                headers,
+            })
+            .then((res) =>
+                setPaymentInfo({
+                    paymentHash: res.data.payment_hash,
+                    checkingId: res.data.checking_id,
+                })
+            )
+            .catch((err) => console.log(err))
+        return
+    }
+    const handleReceive = (e) => {
+        // Keep the page from refreshing when the form is submitted
+        e.preventDefault()
+        const headers = {
+            'X-Api-Key': import.meta.env.VITE_TEST_VAR,
+        }
+        const data = {
+            amount: formData.amount,
+            out: false,
+            // ToDo: Add additional form for user to be able to customize the memo
+            memo: 'LNBits',
+        }
+        axios
+            .post('https://legend.lnbits.com/api/v1/payments', data, {
+                headers,
+            })
+            .then((res) => setInvoice(res.data.payment_request))
+            .catch((err) => console.log(err))
+        return
+    }
+    const clearForms = () => {
+        setModalState({
+            type: '',
+            open: false,
+        })
+        setInvoice('')
+        setPaymentInfo({
+            paymentHash: '',
+            checkingId: '',
+        })
+        setFormData({
+            amount: 0,
+            invoiceToPay: '',
+        })
+    }
 
     return (
         <Modal
@@ -37,13 +93,66 @@ const PaymentsModal = ({ modalState, setModalState }) => {
             <p
                 className="close-button"
                 onClick={() => {
-                    setModalState({ open: false, type: null })
-                    //clearForms()
+                    clearForms()
                 }}
             >
                 X
             </p>
-            <p>Here's our modal! </p>
+            {/* If it is a send */}
+            {modalState.type === 'send' && (
+                <form>
+                    <label>paste an invoice</label>
+                    <input
+                        type="text"
+                        value={formData.invoiceToPay}
+                        onChange={(e) =>
+                            setFormData({
+                                ...formData,
+                                invoiceToPay: e.target.value,
+                            })
+                        }
+                    />
+                    <button className="button" onClick={(e) => handleSend(e)}>
+                        Submit
+                    </button>
+                </form>
+            )}
+            {/* If it is a receive */}
+            {modalState.type === 'receive' && (
+                <form>
+                    <label>enter amount</label>
+                    <input
+                        type="number"
+                        min="0"
+                        value={formData.amount}
+                        onChange={(e) =>
+                            setFormData({ ...formData, amount: e.target.value })
+                        }
+                    />
+                    <button
+                        className="button"
+                        onClick={(e) => handleReceive(e)}
+                    >
+                        Submit
+                    </button>
+                </form>
+            )}
+            {/* If we are displaying our newly created invoice */}
+            {invoice && (
+                <section>
+                    <h3>Invoice created</h3>
+                    <p>{invoice}</p>
+                    {/* ToDo: Create a QR code out of this invoice as well */}
+                </section>
+            )}
+            {/* If we are displaying the status of our successful payment */}
+            {paymentInfo.paymentHash && (
+                <section>
+                    <h3>Payment sent</h3>
+                    <p>Payment hash: {paymentInfo.paymentHash}</p>
+                    <p>Checking id: {paymentInfo.checkingId}</p>
+                </section>
+            )}
         </Modal>
     )
 }
