@@ -3,14 +3,48 @@ import axios from 'axios'
 import { useState, useEffect } from 'react'
 import Transactions from './components/Transactions'
 import Buttons from './components/Buttons'
-import Chart from './components/Chart'
+import moment from 'moment'
+
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend,
+} from 'chart.js'
+import { Line } from 'react-chartjs-2'
+
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend
+)
 
 import './App.css'
 function App() {
     const [price, setPrice] = useState(null)
     const [balance, setBalance] = useState(null)
     const [transactions, setTransactions] = useState([])
-    const [chartData, setChartData] = useState(null)
+    const [data, setData] = useState()
+    const [options, setOptions] = useState({
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'Bitcoin 30 day price chart',
+            },
+        },
+    })
 
     const getPrice = () => {
         // Axios is a library that makes it easy to make http requests
@@ -21,7 +55,7 @@ function App() {
             // .then is a promise that will run when the API call is successful
             .then((res) => {
                 setPrice(res.data.data.amount)
-                updateChartData(res.data.data.amount)
+                // updateChartData(res.data.data.amount)
             })
             // .catch is a promise that will run if the API call fails
             .catch((err) => {
@@ -58,41 +92,36 @@ function App() {
             .catch((err) => console.log(err))
     }
 
-    const updateChartData = (currentPrice) => {
-        const timestamp = Date.now()
-        // We are able to grab the previous state to look at it and do logic before adding new data to it
-        setChartData((prevState) => {
-            // If we have no previous state, create a new array with the new price data
-            if (!prevState)
-                return [
-                    {
-                        x: timestamp,
-                        y: Number(currentPrice),
-                    },
-                ]
-            // If the timestamp or price has not changed, we dont want to add a new point
-            if (
-                prevState[prevState.length - 1].x === timestamp ||
-                prevState[prevState.length - 1].y === Number(currentPrice)
+    const getChartData = () => {
+        axios
+            .get(
+                'https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=300&interval=daily'
             )
-                return prevState
-            // If we have previous state than keep it and add the new price data to the end of the array
-            return [
-                // Here we use the "spread operator" to copy the previous state
-                ...prevState,
-                {
-                    x: timestamp,
-                    y: Number(currentPrice),
-                },
-            ]
-        })
+            .then((response) => {
+                console.log(response.data)
+                setData({
+                    labels: response.data.prices.map((price) => {
+                        return moment(price[0]).format('MMM Do YY')
+                    }),
+                    datasets: [
+                        {
+                            label: 'Bitcoin',
+                            data: response.data.prices.map((price) => {
+                                return price[1]
+                            }),
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        },
+                    ],
+                })
+            })
     }
 
     useEffect(() => {
         getPrice()
         getWalletBalance()
         getTransactions()
-        console.log(import.meta.env.VITE_TEST_VAR)
+        getChartData()
     }, [])
 
     useEffect(() => {
@@ -124,13 +153,14 @@ function App() {
                 <div className="row-item">
                     <Transactions transactions={transactions} />
                 </div>
-                {/* <div className="row-item">
-                    <Chart chartData={chartData} />
-                </div> */}
+                <div className="row-item">
+                    {data && <Line data={data} options={options} />}
+                </div>
+
+                <footer>
+                    <p>Made by plebs, for plebs.</p>
+                </footer>
             </div>
-            <footer>
-                <p>Made by plebs, for plebs.</p>
-            </footer>
         </div>
     )
 }
