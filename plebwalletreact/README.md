@@ -1,4 +1,4 @@
 # React Bitcoin Wallet
-#### Video Demo:  https://youtu.be/Pl8H_Zjb8Tc
+#### Video Demo:   https://youtu.be/RI-cLd2RlSA
 #### Description:
 Bitcoin lightning wallet in React
