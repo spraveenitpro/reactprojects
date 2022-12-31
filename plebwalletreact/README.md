@@ -25,6 +25,8 @@ Bitcoin lightning wallet in React
 
 ### About Lightning payments:
 
+The Lightning Network (often abbreviated as LN), is changing the way people exchange value online, and it’s one of the most exciting advancements to happen in Bitcoin’s history. Today, in 2021, the Lightning Network is still in its infancy. The Lightning Network is a protocol for using Bitcoin in a smart and nonobvious way. It is a second layer technology on top of Bitcoin.
+
 Initially, Bitcoin was not designed to be scalable. It was intended to be a decentralized payment system where the users could remain anonymous and access it from anywhere. However, its popularity was one of its downfalls—transactions became much slower and more costly than intended. Thus, developers created cryptocurrency layers, where the first layer was the primary blockchain. Each layer beneath that was a secondary layer, tertiary layer, and so forth.
 
 Each layer complements the layer above it and adds functionality. The Lightning Network is a second layer for Bitcoin that uses micropayment channels to scale the blockchain’s capability to conduct transactions more efficiently.
